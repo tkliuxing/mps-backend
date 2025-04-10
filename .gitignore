@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+.venv/
+.venv*
+venv/
+*.py[cod]
+*.class
+.DS_Store
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# pyenv
+.env
+.venv
+.python-version
+
+# IDE files
+.idea/
+.vscode/
+
+# Django stuff:
+*.log
+local_settings.py
+local_settings_test.py
+
+# Project specific:
+*.sqlite3
+*.db
+.cache
+.ipynb_checkpoints
+gitrepo/
+/tmp
+/media
+export_table_dict_func.sql
+parameter.json
+supervisor.conf
+/templates
+/static
+/log
+/logs
+/backups

@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>定位数据测试</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="//unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <link rel="stylesheet" href="//unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <style>
+      [v-cloak] {
+          display: none;
+      }
+  </style>
+</head>
+<body>
+<div id="app" v-cloak>
+  <div style="max-width:1200px;margin:0 auto;">
+    <el-card>
+      <div slot="header" class="clearfix">
+        <span>定位数据测试录入</span>
+      </div>
+      <el-form ref="form" :model="form" label-width="120px">
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="SYS ID" prop="sys_id" :rules="[{required: true}]">
+              <el-input-number v-model="form.sys_id"></el-input-number>
+            </el-form-item>
+            <el-form-item label="ORG ID" prop="org_id" :rules="[{required: true}]">
+              <el-input-number v-model="form.org_id"></el-input-number>
+            </el-form-item>
+            <el-form-item label="BIZ ID" prop="biz_id" :rules="[{required: true}]">
+              <el-input-number v-model="form.biz_id"></el-input-number>
+            </el-form-item>
+            <el-form-item label="SRC ID" prop="src_id" :rules="[{required: true}]">
+              <el-input-number v-model="form.src_id"></el-input-number>
+            </el-form-item>
+            <el-form-item label="设备sn" prop="sn" :rules="[{required: true}]">
+              <el-input v-model="form.sn"></el-input>
+            </el-form-item>
+            <el-form-item label="经度" prop="longitude" :rules="[{required: true}]">
+              <el-input v-model="form.longitude"></el-input>
+            </el-form-item>
+            <el-form-item label="纬度" prop="latitude" :rules="[{required: true}]">
+              <el-input v-model="form.latitude"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="海拔" prop="altitude" :rules="[{required: false}]">
+              <el-input v-model="form.altitude"></el-input>
+            </el-form-item>
+            <el-form-item label="方向角" prop="direction" :rules="[{required: false}]">
+              <el-input v-model="form.direction"></el-input>
+            </el-form-item>
+            <el-form-item label="速度" prop="velocity" :rules="[{required: false}]">
+              <el-input v-model="form.velocity"></el-input>
+            </el-form-item>
+            <el-form-item label="加速度" prop="acceleration" :rules="[{required: false}]">
+              <el-input v-model="form.acceleration"></el-input>
+            </el-form-item>
+            <el-form-item label="类别" prop="category" :rules="[{required: false}]">
+              <el-input v-model="form.category"></el-input>
+            </el-form-item>
+            <el-form-item label="坐标系名称" prop="coordinate_name" :rules="[{required: false}]">
+              <el-select v-model="form.coordinate_name">
+                <el-option v-for="i in coordinate_names" :label="i" :value="i"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="onSubmit">立即创建</el-button>
+              <el-button>取消</el-button>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="创建时间" prop="create_time" :rules="[{required: true}]">
+              <el-date-picker type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+                              v-model="form.create_time"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="设备时间" prop="client_time" :rules="[{required: true}]">
+              <el-date-picker type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+                              v-model="form.client_time"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="field_01" prop="field_01" :rules="[{required: false}]">
+              <el-input v-model="form.field_01"></el-input>
+            </el-form-item>
+            <el-form-item label="field_02" prop="field_02" :rules="[{required: false}]">
+              <el-input v-model="form.field_02"></el-input>
+            </el-form-item>
+            <el-form-item label="field_03" prop="field_03" :rules="[{required: false}]">
+              <el-input v-model="form.field_03"></el-input>
+            </el-form-item>
+            <el-form-item label="text_01" prop="text_01" :rules="[{required: false}]">
+              <el-input type="textarea" v-model="form.text_01"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </el-card>
+  </div>
+</div>
+<div id="coordinates" style="width:1200px;margin:0 auto;padding-top:10px;text-align:center;"></div>
+<div id="mapid" style="width:1200px;height:800px;margin:0 auto;padding-top:10px;">
+
+</div>
+{% csrf_token %}
+<script src="{% static 'gps/index.js' %}"></script>
+<script src="//unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="//cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="//unpkg.com/element-ui/lib/index.js"></script>
+<script>
+
+  const FORM = {
+    sys_id: null,
+    org_id: null,
+    biz_id: null,
+    src_id: null,
+    sn: '',
+    category: '',
+    sdk_name: '',
+    coordinate_name: 'WGS84',
+    longitude: '',
+    latitude: '',
+    radius: null,
+    altitude: null,
+    direction: null,
+    velocity: null,
+    acceleration: null,
+    create_time: (new Date()).toLocaleString('zh-cn').replaceAll('/', '-'),
+    client_time: (new Date()).toLocaleString('zh-cn').replaceAll('/', '-'),
+    field_01: '',
+    field_02: '',
+    field_03: '',
+    text_01: '',
+  };
+
+  const app = new Vue({
+    el: '#app',
+    compilerOptions: {
+      delimiters: ['${', '}']
+    },
+    data() {
+      return {
+        form: {...FORM},
+        coordinate_names: [
+          'WGS84',
+          'GCJ02',
+        ]
+      }
+    },
+    methods: {
+      onSubmit() {
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        this.$refs['form'].validate((valid) => {
+          if (valid) {
+            fetch('.', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+              },
+              body: JSON.stringify(this.form)
+            }).then(response => response.json())
+              .then(data => {
+                if (data) {
+                  this.$message({
+                    message: '创建成功',
+                    type: 'success'
+                  });
+                } else {
+                  this.$message.error(data.message);
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              });
+          } else {
+            return false;
+          }
+        });
+      },
+    }
+  })
+</script>
+
+<script>
+  // 初始化地图
+  var map = L.map('mapid').setView([40.823410, 111.679291], 13);
+  let marker;
+  const amap_url = 'https://webrd03.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}&lang=zh_cn';
+  const openstreetmap_url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  // 加载地图瓦片
+  L.tileLayer(amap_url, {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // 地图点击事件
+  map.on('click', function (e) {
+    app.form.latitude = e.latlng.lat;
+    app.form.longitude = e.latlng.lng;
+    document.getElementById('coordinates').innerText =
+      '选中点的经纬度: ' + e.latlng.lat + ', ' + e.latlng.lng;
+
+    // 如果需要在地图上显示点击位置，可以添加以下代码
+    if(marker){
+      map.removeLayer(marker);
+    }
+    marker = L.marker(e.latlng).addTo(map);
+  });
+
+  // 显示点击位置的文本
+  document.getElementById('coordinates').innerText = '点击地图选点';
+</script>
+
+</body>
+</html>
