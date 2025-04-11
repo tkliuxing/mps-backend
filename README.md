@@ -8,10 +8,14 @@
 
 详见 [API接口说明](docs/api.md) 文档
 
+## 前端项目
+
+[项目地址](https://github.com/tkliuxing/zqgjx-web-os)
+
 ## 联系我们
 
 - 微信公众号：内蒙古软件研发共享中心
-- ![公众号](docs/qrcode.jpg)
+- ![公众号](https://gongju.nmhuixin.com/qrcode.jpg)
 - 邮箱：tkliuxing@163.com
 - QQ：418280026
 
